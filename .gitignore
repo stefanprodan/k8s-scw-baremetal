@@ -4,3 +4,8 @@
 
 # Module directory
 .terraform/
+
+# IDE
+.idea
+.vscode
+.DS_Store
