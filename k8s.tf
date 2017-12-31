@@ -10,18 +10,29 @@ resource "scaleway_server" "k8s_master" {
     user = "root"
   }
 
+  provisioner "file" {
+    source      = "scripts/kubeadm-install.sh"
+    destination = "/tmp/kubeadm-install.sh"
+  }
+
   provisioner "remote-exec" {
     inline = [
-      "curl -fsSL get.docker.com -o get-docker.sh",
-      "CHANNEL=stable sh get-docker.sh",
-      "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && echo \"deb http://apt.kubernetes.io/ kubernetes-xenial main\" | tee /etc/apt/sources.list.d/kubernetes.list",
-      "apt-get update -q && apt-get install -qy kubeadm",
-      "apt-get install -qy git",
-      "kubeadm init --apiserver-advertise-address=$(hostname -I | awk '{print $1;}') --kubernetes-version ${var.k8s_version}",
+      "chmod +x /tmp/kubeadm-install.sh && /tmp/kubeadm-install.sh",
+      "kubeadm init --apiserver-advertise-address=${self.private_ip} --kubernetes-version ${var.k8s_version}",
       "mkdir -p $HOME/.kube",
       "cp -i /etc/kubernetes/admin.conf $HOME/.kube/config",
       "chown $(id -u):$(id -g) $HOME/.kube/config",
       "kubectl apply -f \"https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')\"",
     ]
   }
+}
+
+data "external" "kubeadm_join" {
+  program = ["./scripts/kubeadm-token.sh"]
+
+  query = {
+    host = "${scaleway_ip.k8s_master_ip.0.ip}"
+  }
+
+  depends_on = ["scaleway_server.k8s_master"]
 }
