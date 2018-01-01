@@ -10,6 +10,6 @@ variable "instance_type" {
   default = "C1"
 }
 
-variable "worker_instance_count" {
+variable "node_instance_count" {
   default = 1
 }
