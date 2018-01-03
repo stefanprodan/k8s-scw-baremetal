@@ -1,3 +1,7 @@
+variable "docker_version" {
+  default = "17.03.0~ce-0~ubuntu-xenial"
+}
+
 variable "k8s_version" {
   default = "stable-1.9"
 }

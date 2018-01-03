@@ -15,12 +15,18 @@ resource "scaleway_server" "k8s_master" {
   }
 
   provisioner "file" {
+    source      = "scripts/docker-install.sh"
+    destination = "/tmp/docker-install.sh"
+  }
+
+  provisioner "file" {
     source      = "scripts/kubeadm-install.sh"
     destination = "/tmp/kubeadm-install.sh"
   }
 
   provisioner "remote-exec" {
     inline = [
+      "chmod +x /tmp/docker-install.sh && /tmp/docker-install.sh ${var.docker_version}",
       "chmod +x /tmp/kubeadm-install.sh && /tmp/kubeadm-install.sh",
       "kubeadm init --apiserver-advertise-address=${self.private_ip} --kubernetes-version ${var.k8s_version}",
       "mkdir -p $HOME/.kube && cp -i /etc/kubernetes/admin.conf $HOME/.kube/config",

@@ -6,4 +6,3 @@ data "scaleway_image" "xenial" {
   architecture = "arm"
   name         = "Ubuntu Xenial"
 }
-
