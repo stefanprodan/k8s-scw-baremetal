@@ -18,6 +18,6 @@ variable "instance_type" {
   default = "C1"
 }
 
-variable "node_instance_count" {
+variable "nodes" {
   default = 2
 }

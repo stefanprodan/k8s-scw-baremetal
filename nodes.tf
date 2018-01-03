@@ -1,9 +1,9 @@
 resource "scaleway_ip" "k8s_node_ip" {
-  count = "${var.node_instance_count}"
+  count = "${var.nodes}"
 }
 
 resource "scaleway_server" "k8s_node" {
-  count     = "${var.node_instance_count}"
+  count     = "${var.nodes}"
   name      = "k8s-node-${count.index + 1}"
   image     = "${data.scaleway_image.xenial.id}"
   type      = "${var.instance_type}"
