@@ -19,5 +19,5 @@ variable "instance_type" {
 }
 
 variable "node_instance_count" {
-  default = 1
+  default = 2
 }
