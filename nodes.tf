@@ -34,7 +34,6 @@ resource "scaleway_server" "k8s_node" {
 
   provisioner "remote-exec" {
     inline = [
-      "kubectl get nodes -o wide",
       "kubectl get pods --all-namespaces",
     ]
 

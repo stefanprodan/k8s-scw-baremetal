@@ -15,13 +15,8 @@ resource "scaleway_server" "k8s_master" {
   }
 
   provisioner "file" {
-    source      = "scripts/docker-install.sh"
-    destination = "/tmp/docker-install.sh"
-  }
-
-  provisioner "file" {
-    source      = "scripts/kubeadm-install.sh"
-    destination = "/tmp/kubeadm-install.sh"
+    source      = "scripts/"
+    destination = "/tmp"
   }
 
   provisioner "remote-exec" {
@@ -30,7 +25,8 @@ resource "scaleway_server" "k8s_master" {
       "chmod +x /tmp/kubeadm-install.sh && /tmp/kubeadm-install.sh",
       "kubeadm init --apiserver-advertise-address=${self.private_ip} --kubernetes-version ${var.k8s_version}",
       "mkdir -p $HOME/.kube && cp -i /etc/kubernetes/admin.conf $HOME/.kube/config",
-      "kubectl apply -f \"https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')\"",
+      "kubectl create secret -n kube-system generic weave-passwd --from-literal=weave-passwd=${var.weave_passwd}",
+      "kubectl apply -f /tmp/weave-net.yaml",
     ]
   }
 }
