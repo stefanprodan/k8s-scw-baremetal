@@ -4,7 +4,7 @@ resource "scaleway_ip" "k8s_master_ip" {
 
 resource "scaleway_server" "k8s_master" {
   count     = 1
-  name      = "k8s-master-${count.index + 1}"
+  name      = "k8s-arm-master-${count.index + 1}"
   image     = "${data.scaleway_image.xenial.id}"
   type      = "${var.instance_type}"
   public_ip = "${element(scaleway_ip.k8s_master_ip.*.ip, count.index)}"
