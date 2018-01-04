@@ -19,5 +19,5 @@ variable "instance_type" {
 }
 
 variable "nodes" {
-  default = 2
+  default = 1
 }
