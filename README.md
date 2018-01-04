@@ -48,7 +48,28 @@ This will do the following:
 * starts the worker nodes in parallel and installs Docker CE and kubeadm
 * joins the worker nodes in the cluster using the kubeadm token obtained from the master
 
-### Kubernetes dashboard
+### Kubernetes remote control
+
+In order to use `kubectl` from another machine first you'll have to copy the admin config file from the 
+master node:
+
+```bash
+scp root@<MASTER_PUBLIC_IP>:/etc/kubernetes/admin.conf .
+```
+
+Open `admin.conf` in your favorite editor and replace the server IP with the public IP:
+
+```yaml
+clusters:
+- cluster:
+    server: https://<MASTER_PUBLIC_IP>:6443
+```
+
+Now you can run `kubectl` commands using the admin config:
+
+```bash
+kubectl --kubeconfig ./admin.conf get nodes
+```
 
 In order to access the dashboard you'll need to find its cluster IP. Connect with SSH to the master node 
 and run:
