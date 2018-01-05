@@ -31,6 +31,11 @@ resource "scaleway_server" "k8s_master" {
       "kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/alternative/kubernetes-dashboard-arm.yaml",
     ]
   }
+
+  provisioner "local-exec" {
+    command    = "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@${self.public_ip}:/etc/kubernetes/admin.conf . && sed -i --- 's/${self.private_ip}/${self.public_ip}/g' admin.conf"
+    on_failure = "continue"
+  }
 }
 
 data "external" "kubeadm_join" {

@@ -42,6 +42,7 @@ This will do the following:
 * provisions three bare-metal ARMv7 servers with Ubuntu 16.04.1 LTS
 * connects to the master server via SSH and installs Docker CE and kubeadm armhf apt packages
 * runs kubeadm init on the master server and configures kubectl
+* downloads the kubectl admin config file on your local machine and replaces the private IP with the public one
 * creates a Kubernetes secret with the Weave Net password
 * installs Weave Net with encrypted overlay
 * installs Kubernetes dashboard
@@ -50,22 +51,7 @@ This will do the following:
 
 ### Kubernetes remote control
 
-In order to use `kubectl` from another machine first you'll have to copy the admin config file from the 
-master node:
-
-```bash
-scp root@<MASTER_PUBLIC_IP>:/etc/kubernetes/admin.conf .
-```
-
-Open `admin.conf` in your favorite editor and replace the server IP with the public IP:
-
-```yaml
-clusters:
-- cluster:
-    server: https://<MASTER_PUBLIC_IP>:6443
-```
-
-Now you can run `kubectl` commands using the admin config:
+In order to run `kubectl` commands against the Scaleway cluster you can use the `admin.conf` file:
 
 ```bash
 kubectl --kubeconfig ./admin.conf get nodes
