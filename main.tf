@@ -3,6 +3,6 @@ provider "scaleway" {
 }
 
 data "scaleway_image" "xenial" {
-  architecture = "arm"
+  architecture = "${var.arch}"
   name         = "Ubuntu Xenial"
 }

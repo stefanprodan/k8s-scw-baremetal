@@ -4,21 +4,24 @@ resource "scaleway_ip" "k8s_master_ip" {
 
 resource "scaleway_server" "k8s_master" {
   count     = 1
-  name      = "k8s-arm-master-${count.index + 1}"
+  name      = "${terraform.workspace}-master-${count.index + 1}"
   image     = "${data.scaleway_image.xenial.id}"
-  type      = "${var.instance_type}"
+  type      = "${var.server_type}"
   public_ip = "${element(scaleway_ip.k8s_master_ip.*.ip, count.index)}"
+
+  //  volume {
+  //    size_in_gb = 50
+  //    type       = "l_ssd"
+  //  }
 
   connection {
     type = "ssh"
     user = "root"
   }
-
   provisioner "file" {
     source      = "scripts/"
     destination = "/tmp"
   }
-
   provisioner "remote-exec" {
     inline = [
       "chmod +x /tmp/docker-install.sh && /tmp/docker-install.sh ${var.docker_version}",
@@ -27,13 +30,11 @@ resource "scaleway_server" "k8s_master" {
       "mkdir -p $HOME/.kube && cp -i /etc/kubernetes/admin.conf $HOME/.kube/config",
       "kubectl create secret -n kube-system generic weave-passwd --from-literal=weave-passwd=${var.weave_passwd}",
       "kubectl apply -f \"https://cloud.weave.works/k8s/net?password-secret=weave-passwd&k8s-version=$(kubectl version | base64 | tr -d '\n')\"",
-      "kubectl apply -f /tmp/dashboard-admin.yaml",
-      "kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/alternative/kubernetes-dashboard-arm.yaml",
+      "chmod +x /tmp/dashboard-install.sh && /tmp/dashboard-install.sh ${var.arch}",
     ]
   }
-
   provisioner "local-exec" {
-    command    = "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@${self.public_ip}:/etc/kubernetes/admin.conf . && sed -i --- 's/${self.private_ip}/${self.public_ip}/g' admin.conf"
+    command    = "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@${self.public_ip}:/etc/kubernetes/admin.conf . && sed -i --- 's/${self.private_ip}/${self.public_ip}/g' admin.conf && rm admin.conf---"
     on_failure = "continue"
   }
 }

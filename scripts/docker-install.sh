@@ -11,4 +11,5 @@ echo "deb https://download.docker.com/linux/ubuntu xenial stable" | tee /etc/apt
 apt-get update -qq
 apt-get install -y -qq --no-install-recommends docker-ce=${DOCKER_VERSION}
 apt-mark hold docker-ce
+docker version
 

@@ -9,3 +9,7 @@ output "kubeadm_join_command" {
 output "nodes_public_ip" {
   value = "${concat(scaleway_server.k8s_node.*.name, scaleway_server.k8s_node.*.public_ip)}"
 }
+
+output "kubectl_config" {
+  value = "${terraform.workspace}.conf"
+}
