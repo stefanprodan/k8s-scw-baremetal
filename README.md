@@ -57,8 +57,7 @@ In order to run `kubectl` commands against the Scaleway cluster you can use the 
 kubectl --kubeconfig ./admin.conf get nodes
 ```
 
-In order to access the dashboard you'll need to find its cluster IP. Connect with SSH to the master node 
-and run:
+In order to access the dashboard you'll need to find its cluster IP:
 
 ```bash
 $ kubectl -n kube-system get svc --selector=k8s-app=kubernetes-dashboard
