@@ -206,10 +206,57 @@ Check if the metrics server is running:
 
 ```bash
 $ kubectl --kubeconfig ./$(terraform output kubectl_config) \
-  -n kube-system get pods --selector=k8s-app=metrics-server
-
-NAME                              READY     STATUS    RESTARTS   AGE
-metrics-server-57b8464d9d-vbdv8   1/1       Running   0          16m
+ get --raw "/apis/metrics.k8s.io/v1beta1/nodes" | jq
+```
+```json
+  {
+    "kind": "NodeMetricsList",
+    "apiVersion": "metrics.k8s.io/v1beta1",
+    "metadata": {
+      "selfLink": "/apis/metrics.k8s.io/v1beta1/nodes"
+    },
+    "items": [
+      {
+        "metadata": {
+          "name": "arm-master-1",
+          "selfLink": "/apis/metrics.k8s.io/v1beta1/nodes/arm-master-1",
+          "creationTimestamp": "2018-01-08T15:17:09Z"
+        },
+        "timestamp": "2018-01-08T15:17:00Z",
+        "window": "1m0s",
+        "usage": {
+          "cpu": "384m",
+          "memory": "935792Ki"
+        }
+      },
+      {
+        "metadata": {
+          "name": "arm-node-1",
+          "selfLink": "/apis/metrics.k8s.io/v1beta1/nodes/arm-node-1",
+          "creationTimestamp": "2018-01-08T15:17:09Z"
+        },
+        "timestamp": "2018-01-08T15:17:00Z",
+        "window": "1m0s",
+        "usage": {
+          "cpu": "130m",
+          "memory": "649020Ki"
+        }
+      },
+      {
+        "metadata": {
+          "name": "arm-node-2",
+          "selfLink": "/apis/metrics.k8s.io/v1beta1/nodes/arm-node-2",
+          "creationTimestamp": "2018-01-08T15:17:09Z"
+        },
+        "timestamp": "2018-01-08T15:17:00Z",
+        "window": "1m0s",
+        "usage": {
+          "cpu": "120m",
+          "memory": "614180Ki"
+        }
+      }
+    ]
+  }
 ```
 
 Let's deploy podinfo horizontal pod autoscaler with CPU average utilization at 5%:
