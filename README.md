@@ -116,7 +116,7 @@ Now you can access the dashboard on your computer at `http://localhost:8888`.
 Since we're running on bare-metal and Scaleway doesn't offer a load balancer, the easiest way to expose 
 applications outside of Kubernetes is using a NodePort service. 
 
-Let's deploy the podinfo app in the default namespace. 
+Let's deploy the [podinfo](https://github.com/stefanprodan/k8s-podinfo) app in the default namespace. 
 Podinfo has a multi-arch Docker image and it will work on arm, arm64 or amd64.
 
 Create the podinfo nodeport service:
@@ -185,7 +185,7 @@ externalIP:
 
 Starting from Kubernetes 1.9 `kube-controller-manager` is configured by default with
 `horizontal-pod-autoscaler-use-rest-clients`. 
-In oder to use HPA we need to install the metrics server to enable the new metrics API used by HPA v2. 
+In order to use HPA we need to install the metrics server to enable the new metrics API used by HPA v2. 
 
 Both Heapster and the metrics server have been deployed from Terraform when the master node was provisioned.
 
@@ -201,7 +201,7 @@ arm-node-1     147m         3%        618Mi           32%
 arm-node-2     101m         2%        584Mi           30% 
 ```
 
-And the metrics server:
+Check if the metrics server is running:
 
 ```bash
 $ kubectl --kubeconfig ./$(terraform output kubectl_config) \
