@@ -192,3 +192,58 @@ environment:
 externalIP:
   IPv4: 163.172.139.112
 ```
+
+### Horizontal Pod Autoscaling
+
+Let's deploy podinfo horizontal pod autoscaler with CPU average utilization at 5%:
+
+```bash
+$ kubectl --kubeconfig ./$(terraform output kubectl_config) \
+  apply -f https://raw.githubusercontent.com/stefanprodan/k8s-podinfo/master/deploy/podinfo-hpa-cpu.yaml
+
+horizontalpodautoscaler "podinfo-hpa-cpu" created
+```
+
+After a couple of seconds the HPA controller will contact the metrics server and will fetch the CPU usage:
+
+```bash
+$ kubectl --kubeconfig ./$(terraform output kubectl_config) get hpa
+
+NAME              REFERENCE            TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+podinfo-hpa-cpu   Deployment/podinfo   1% / 5%   1         10        1          4m
+```
+
+In order to increase the CPU usage we could run a load test with hey:
+
+```bash
+#install hey
+go get -u github.com/rakyll/hey
+
+#do 10K requests rate limited at 20 QPS
+hey -n 10000 -q 10 -c 5 http://$(terraform output k8s_master_public_ip):31190
+```
+
+You can monitor the autoscaler events with:
+
+```bash
+$ kubectl --kubeconfig ./$(terraform output kubectl_config) describe hpa
+
+Events:
+  Type    Reason             Age   From                       Message
+  ----    ------             ----  ----                       -------
+  Normal  SuccessfulRescale  7m    horizontal-pod-autoscaler  New size: 4; reason: cpu resource utilization (percentage of request) above target
+  Normal  SuccessfulRescale  3m    horizontal-pod-autoscaler  New size: 8; reason: cpu resource utilization (percentage of request) above target
+```
+
+After the load tests finishes the autoscaler will remove replicas until the deployment reaches the initial replica count:
+
+```
+Events:
+  Type    Reason             Age   From                       Message
+  ----    ------             ----  ----                       -------
+  Normal  SuccessfulRescale  20m   horizontal-pod-autoscaler  New size: 4; reason: cpu resource utilization (percentage of request) above target
+  Normal  SuccessfulRescale  16m   horizontal-pod-autoscaler  New size: 8; reason: cpu resource utilization (percentage of request) above target
+  Normal  SuccessfulRescale  12m   horizontal-pod-autoscaler  New size: 10; reason: cpu resource utilization (percentage of request) above target
+  Normal  SuccessfulRescale  6m    horizontal-pod-autoscaler  New size: 2; reason: All metrics below target
+  Normal  SuccessfulRescale  1m    horizontal-pod-autoscaler  New size: 1; reason: All metrics below target
+```
