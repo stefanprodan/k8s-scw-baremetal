@@ -93,18 +93,6 @@ kubectl --kubeconfig ./$(terraform output kubectl_config) get nodes
 
 The `kubectl` config file format is `<WORKSPACE>.conf` as in `arm.conf` or `amd64.conf`.
 
-Test if Heapster, the metrics cluster add-on works: 
-
-```bash
-$ kubectl --kubeconfig ./$(terraform output kubectl_config) \
-  top nodes
-
-NAME           CPU(cores)   CPU%      MEMORY(bytes)   MEMORY%   
-arm-master-1   354m         8%        726Mi           37%       
-arm-node-1     104m         2%        563Mi           29%       
-arm-node-2     111m         2%        592Mi           30% 
-```
-
 In order to access the dashboard you'll need to find its cluster IP:
 
 ```bash
@@ -194,6 +182,34 @@ externalIP:
 ```
 
 ### Horizontal Pod Autoscaling
+
+Starting from Kubernetes 1.9 `kube-controller-manager` is configured by default with
+`horizontal-pod-autoscaler-use-rest-clients`. 
+In oder to use HPA we need to install the metrics server to enable the new metrics API used by HPA v2. 
+
+Both Heapster and the metrics server have been deployed from Terraform when the master node was provisioned.
+
+Check if Heapster works: 
+
+```bash
+$ kubectl --kubeconfig ./$(terraform output kubectl_config) \
+  top nodes
+
+NAME           CPU(cores)   CPU%      MEMORY(bytes)   MEMORY%   
+arm-master-1   655m         16%       873Mi           45%       
+arm-node-1     147m         3%        618Mi           32%       
+arm-node-2     101m         2%        584Mi           30% 
+```
+
+And the metrics server:
+
+```bash
+$ kubectl --kubeconfig ./$(terraform output kubectl_config) \
+  -n kube-system get pods --selector=k8s-app=metrics-server
+
+NAME                              READY     STATUS    RESTARTS   AGE
+metrics-server-57b8464d9d-vbdv8   1/1       Running   0          16m
+```
 
 Let's deploy podinfo horizontal pod autoscaler with CPU average utilization at 5%:
 
