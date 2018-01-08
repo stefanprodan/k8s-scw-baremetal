@@ -48,7 +48,7 @@ This will do the following:
 * downloads the kubectl admin config file on your local machine and replaces the private IP with the public one
 * creates a Kubernetes secret with the Weave Net password
 * installs Weave Net with encrypted overlay
-* installs cluster add-ons (Kubernetes dashboard and Heapster)
+* installs cluster add-ons (Kubernetes dashboard, metrics server and Heapster)
 * starts the worker nodes in parallel and installs Docker CE and kubeadm
 * joins the worker nodes in the cluster using the kubeadm token obtained from the master
 
