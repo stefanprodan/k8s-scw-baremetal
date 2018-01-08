@@ -11,5 +11,4 @@
 .DS_Store
 
 # K8S
-admin.conf
-admin.conf---
+*.conf

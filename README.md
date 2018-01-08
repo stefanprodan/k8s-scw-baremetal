@@ -48,7 +48,7 @@ This will do the following:
 * downloads the kubectl admin config file on your local machine and replaces the private IP with the public one
 * creates a Kubernetes secret with the Weave Net password
 * installs Weave Net with encrypted overlay
-* installs Kubernetes dashboard
+* installs cluster add-ons (Kubernetes dashboard and Heapster)
 * starts the worker nodes in parallel and installs Docker CE and kubeadm
 * joins the worker nodes in the cluster using the kubeadm token obtained from the master
 
@@ -91,12 +91,28 @@ In order to run `kubectl` commands against the Scaleway cluster you can use the 
 kubectl --kubeconfig ./$(terraform output kubectl_config) get nodes
 ```
 
+The `kubectl` config file format is `<WORKSPACE>.conf` as in `arm.conf` or `amd64.conf`.
+
+Test if Heapster, the metrics cluster add-on works: 
+
+```bash
+$ kubectl --kubeconfig ./$(terraform output kubectl_config) \
+  top nodes
+
+NAME           CPU(cores)   CPU%      MEMORY(bytes)   MEMORY%   
+arm-master-1   354m         8%        726Mi           37%       
+arm-node-1     104m         2%        563Mi           29%       
+arm-node-2     111m         2%        592Mi           30% 
+```
+
 In order to access the dashboard you'll need to find its cluster IP:
 
 ```bash
-$ kubectl --kubeconfig ./arm.conf -n kube-system get svc --selector=k8s-app=kubernetes-dashboard
-  NAME                   TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
-  kubernetes-dashboard   ClusterIP   10.110.164.164   <none>        80/TCP    38m
+$ kubectl --kubeconfig ./$(terraform output kubectl_config) \
+  -n kube-system get svc --selector=k8s-app=kubernetes-dashboard
+
+NAME                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+kubernetes-dashboard   ClusterIP   10.107.37.220   <none>        80/TCP    6m
 ```
 
 Open a SSH tunnel:
@@ -106,3 +122,73 @@ ssh -L 8888:<CLUSTER_IP>:80 root@<MASTER_PUBLIC_IP>
 ```
 
 Now you can access the dashboard on your computer at `http://localhost:8888`.
+
+### Expose services outside the cluster
+
+Since we're running on bare-metal and Scaleway doesn't offer a load balancer, the easiest way to expose 
+applications outside of Kubernetes is using a NodePort service. 
+
+Let's deploy the podinfo app in the default namespace. 
+Podinfo has a multi-arch Docker image and it will work on arm, arm64 or amd64.
+
+Create the podinfo nodeport service:
+
+```bash
+$ kubectl --kubeconfig ./$(terraform output kubectl_config) \
+  apply -f https://raw.githubusercontent.com/stefanprodan/k8s-podinfo/master/deploy/podinfo-svc-nodeport.yaml
+
+service "podinfo-nodeport" created
+```
+
+Create the podinfo deployment:
+
+```bash
+$ kubectl --kubeconfig ./$(terraform output kubectl_config) \
+  apply -f https://raw.githubusercontent.com/stefanprodan/k8s-podinfo/master/deploy/podinfo-dep.yaml
+
+deployment "podinfo" created
+```
+
+Inspect the podinfo service to obtain the port number:
+
+```bash
+$ kubectl --kubeconfig ./$(terraform output kubectl_config) \
+  get svc --selector=app=podinfo
+
+NAME               TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+podinfo-nodeport   NodePort   10.104.132.14   <none>        9898:31190/TCP   3m
+```
+
+You can access podinfo at `http://<MASTER_PUBLIC_IP>:31190` or using curl:
+
+```bash
+$ curl http://$(terraform output k8s_master_public_ip):31190
+
+runtime:
+  arch: arm
+  max_procs: "4"
+  num_cpu: "4"
+  num_goroutine: "12"
+  os: linux
+  version: go1.9.2
+labels:
+  app: podinfo
+  pod-template-hash: "1847780700"
+annotations:
+  kubernetes.io/config.seen: 2018-01-08T00:39:45.580597397Z
+  kubernetes.io/config.source: api
+environment:
+  HOME: /root
+  HOSTNAME: podinfo-5d8ccd4c44-zrczc
+  KUBERNETES_PORT: tcp://10.96.0.1:443
+  KUBERNETES_PORT_443_TCP: tcp://10.96.0.1:443
+  KUBERNETES_PORT_443_TCP_ADDR: 10.96.0.1
+  KUBERNETES_PORT_443_TCP_PORT: "443"
+  KUBERNETES_PORT_443_TCP_PROTO: tcp
+  KUBERNETES_SERVICE_HOST: 10.96.0.1
+  KUBERNETES_SERVICE_PORT: "443"
+  KUBERNETES_SERVICE_PORT_HTTPS: "443"
+  PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+externalIP:
+  IPv4: 163.172.139.112
+```

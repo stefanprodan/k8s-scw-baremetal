@@ -30,11 +30,11 @@ resource "scaleway_server" "k8s_master" {
       "mkdir -p $HOME/.kube && cp -i /etc/kubernetes/admin.conf $HOME/.kube/config",
       "kubectl create secret -n kube-system generic weave-passwd --from-literal=weave-passwd=${var.weave_passwd}",
       "kubectl apply -f \"https://cloud.weave.works/k8s/net?password-secret=weave-passwd&k8s-version=$(kubectl version | base64 | tr -d '\n')\"",
-      "chmod +x /tmp/dashboard-install.sh && /tmp/dashboard-install.sh ${var.arch}",
+      "chmod +x /tmp/monitoring-install.sh && /tmp/monitoring-install.sh ${var.arch}",
     ]
   }
   provisioner "local-exec" {
-    command    = "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@${self.public_ip}:/etc/kubernetes/admin.conf . && sed -i --- 's/${self.private_ip}/${self.public_ip}/g' admin.conf && rm admin.conf---"
+    command    = "./scripts/kubectl-conf.sh ${var.arch} ${self.public_ip} ${self.private_ip}"
     on_failure = "continue"
   }
 }
