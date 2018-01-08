@@ -22,6 +22,10 @@ resource "scaleway_server" "k8s_master" {
     source      = "scripts/"
     destination = "/tmp"
   }
+  provisioner "file" {
+    source      = "addons/"
+    destination = "/tmp"
+  }
   provisioner "remote-exec" {
     inline = [
       "chmod +x /tmp/docker-install.sh && /tmp/docker-install.sh ${var.docker_version}",
