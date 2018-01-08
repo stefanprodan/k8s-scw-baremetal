@@ -1,14 +1,14 @@
-# k8s-scw-arm
+# k8s-scw-baremetal
 
-Kubernetes installer for Scaleway Baremetal ARM and AMD64
+Kubernetes Terraform installer for Scaleway bare-metal ARM and AMD64
 
 ### Initial setup
 
 Clone the repository and install the dependencies:
 
 ```bash
-$ git clone https://github.com/stefanprodan/k8s-scw-arm.git
-$ cd k8s-scw-arm
+$ git clone https://github.com/stefanprodan/k8s-scw-baremetal.git
+$ cd k8s-scw-baremetal
 $ terraform init
 ```
 
@@ -65,7 +65,7 @@ Tear down the whole infrastructure with:
 terraform destroy -force
 ```
 
-Create an AMD64 bare-metal Kubernetes cluster with one master and a nodes:
+Create an AMD64 bare-metal Kubernetes cluster with one master and a node:
 
 ```bash
 $ terraform workspace new amd64
@@ -201,6 +201,7 @@ arm-node-1     147m         3%        618Mi           32%
 arm-node-2     101m         2%        584Mi           30% 
 ```
 
+The metric server collects resource usage data from each node using Kubelet Summary API. 
 Check if the metrics server is running:
 
 ```bash
