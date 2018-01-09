@@ -259,22 +259,49 @@ $ kubectl --kubeconfig ./$(terraform output kubectl_config) \
   }
 ```
 
-Let's deploy podinfo horizontal pod autoscaler with CPU average utilization at 5%:
+Let's define a HPA that will maintain a minimum of two replicas and will scale up to ten 
+if the CPU average is over 80% or if the memory goes over 200Mi.
+
+```yaml
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: podinfo
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1beta1
+    kind: Deployment
+    name: podinfo
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: 80
+  - type: Resource
+    resource:
+      name: memory
+      targetAverageValue: 200Mi
+```
+
+Apply the podinfo HPA:
 
 ```bash
 $ kubectl --kubeconfig ./$(terraform output kubectl_config) \
-  apply -f https://raw.githubusercontent.com/stefanprodan/k8s-podinfo/master/deploy/podinfo-hpa-cpu.yaml
+  apply -f https://raw.githubusercontent.com/stefanprodan/k8s-podinfo/master/deploy/podinfo-hpa.yaml
 
-horizontalpodautoscaler "podinfo-hpa-cpu" created
+horizontalpodautoscaler "podinfo" created
 ```
 
-After a couple of seconds the HPA controller will contact the metrics server and will fetch the CPU usage:
+After a couple of seconds the HPA controller will contact the metrics server and will fetch the CPU 
+and memory usage:
 
 ```bash
 $ kubectl --kubeconfig ./$(terraform output kubectl_config) get hpa
 
-NAME              REFERENCE            TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
-podinfo-hpa-cpu   Deployment/podinfo   1% / 5%   1         10        1          4m
+NAME      REFERENCE            TARGETS                      MINPODS   MAXPODS   REPLICAS   AGE
+podinfo   Deployment/podinfo   2826240 / 200Mi, 15% / 80%   2         10        2          5m
 ```
 
 In order to increase the CPU usage we could run a load test with hey:
@@ -309,5 +336,4 @@ Events:
   Normal  SuccessfulRescale  16m   horizontal-pod-autoscaler  New size: 8; reason: cpu resource utilization (percentage of request) above target
   Normal  SuccessfulRescale  12m   horizontal-pod-autoscaler  New size: 10; reason: cpu resource utilization (percentage of request) above target
   Normal  SuccessfulRescale  6m    horizontal-pod-autoscaler  New size: 2; reason: All metrics below target
-  Normal  SuccessfulRescale  1m    horizontal-pod-autoscaler  New size: 1; reason: All metrics below target
 ```
