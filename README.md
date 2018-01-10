@@ -119,9 +119,9 @@ ssh -L 8888:<CLUSTER_IP>:80 root@<MASTER_PUBLIC_IP>
 
 Now you can access the dashboard on your computer at `http://localhost:8888`.
 
-![Overview](https://github.com/stefanprodan/scw-arm/blob/master/screens/dash-overview.jpg)
+![Overview](https://github.com/stefanprodan/k8s-scw-baremetal/blob/master/screens/dash-overview.png)
 
-![Nodes](https://github.com/stefanprodan/scw-arm/blob/master/screens/dash-nodes.jpg)
+![Nodes](https://github.com/stefanprodan/k8s-scw-baremetal/blob/master/screens/dash-nodes.png)
 
 ### Expose services outside the cluster
 
