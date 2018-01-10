@@ -87,8 +87,16 @@ the kubeadmn join command and the current workspace admin config.
 
 In order to run `kubectl` commands against the Scaleway cluster you can use the `kubectl_config` output variable:
 
+Check if Heapster works: 
+
 ```bash
-kubectl --kubeconfig ./$(terraform output kubectl_config) get nodes
+$ kubectl --kubeconfig ./$(terraform output kubectl_config) \
+  top nodes
+
+NAME           CPU(cores)   CPU%      MEMORY(bytes)   MEMORY%   
+arm-master-1   655m         16%       873Mi           45%       
+arm-node-1     147m         3%        618Mi           32%       
+arm-node-2     101m         2%        584Mi           30% 
 ```
 
 The `kubectl` config file format is `<WORKSPACE>.conf` as in `arm.conf` or `amd64.conf`.
@@ -110,6 +118,10 @@ ssh -L 8888:<CLUSTER_IP>:80 root@<MASTER_PUBLIC_IP>
 ```
 
 Now you can access the dashboard on your computer at `http://localhost:8888`.
+
+![Overview](https://github.com/stefanprodan/scw-arm/blob/master/screens/dash-overview.jpg)
+
+![Nodes](https://github.com/stefanprodan/scw-arm/blob/master/screens/dash-nodes.jpg)
 
 ### Expose services outside the cluster
 
@@ -186,20 +198,8 @@ externalIP:
 Starting from Kubernetes 1.9 `kube-controller-manager` is configured by default with
 `horizontal-pod-autoscaler-use-rest-clients`. 
 In order to use HPA we need to install the metrics server to enable the new metrics API used by HPA v2. 
-
-Both Heapster and the metrics server have been deployed from Terraform when the master node was provisioned.
-
-Check if Heapster works: 
-
-```bash
-$ kubectl --kubeconfig ./$(terraform output kubectl_config) \
-  top nodes
-
-NAME           CPU(cores)   CPU%      MEMORY(bytes)   MEMORY%   
-arm-master-1   655m         16%       873Mi           45%       
-arm-node-1     147m         3%        618Mi           32%       
-arm-node-2     101m         2%        584Mi           30% 
-```
+Both Heapster and the metrics server have been deployed from Terraform 
+when the master node was provisioned.
 
 The metric server collects resource usage data from each node using Kubelet Summary API. 
 Check if the metrics server is running:
