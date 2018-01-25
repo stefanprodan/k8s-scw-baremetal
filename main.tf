@@ -1,5 +1,10 @@
 provider "scaleway" {
-  region = "${var.region}"
+  region  = "${var.region}"
+  version = "1.0.1"
+}
+
+provider "external" {
+  version = "1.0.0"
 }
 
 data "scaleway_image" "xenial" {
