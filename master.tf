@@ -38,7 +38,7 @@ resource "scaleway_server" "k8s_master" {
     ]
   }
   provisioner "local-exec" {
-    command    = "./scripts/kubectl-conf.sh ${var.arch} ${self.public_ip} ${self.private_ip}"
+    command    = "./scripts/kubectl-conf.sh ${terraform.workspace} ${self.public_ip} ${self.private_ip}"
     on_failure = "continue"
   }
 }
