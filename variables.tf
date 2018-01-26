@@ -18,9 +18,15 @@ variable "arch" {
 
 variable "region" {
   default = "par1"
+  description = "Values: par1 ams1"
 }
 
 variable "server_type" {
+  default     = "C1"
+  description = "Use C1 for arm, ARM64-2GB for arm64 and C2S for x86_64"
+}
+
+variable "server_type_node" {
   default     = "C1"
   description = "Use C1 for arm, ARM64-2GB for arm64 and C2S for x86_64"
 }
