@@ -34,6 +34,7 @@ $ terraform apply \
  -var arch=arm \
  -var server_type=C1 \
  -var nodes=2 \
+ -var server_type_node=C1 \
  -var weave_passwd=ChangeMe \
  -var k8s_version=stable-1.9 \
  -var docker_version=17.03.0~ce-0~ubuntu-xenial
@@ -42,7 +43,7 @@ $ terraform apply \
 This will do the following:
 
 * reserves public IPs for each server
-* provisions three bare-metal servers with Ubuntu 16.04.1 LTS
+* provisions three bare-metal servers with Ubuntu 16.04.1 LTS (the size of the `master` and the `worker` may be different but must remain in the same type of architecture)
 * connects to the master server via SSH and installs Docker CE and kubeadm armhf apt packages
 * runs kubeadm init on the master server and configures kubectl
 * downloads the kubectl admin config file on your local machine and replaces the private IP with the public one
@@ -56,7 +57,7 @@ Scale up by increasing the number of nodes:
 
 ```bash
 $ terraform apply \
- -var nodes=3 
+ -var nodes=3
 ```
 
 Tear down the whole infrastructure with:
@@ -73,8 +74,9 @@ $ terraform workspace new amd64
 $ terraform apply \
  -var region=par1 \
  -var arch=x86_64 \
- -var server_type=C2S \
+ -var server_type=C2M \
  -var nodes=1 \
+ -var server_type_node=C2S \
  -var weave_passwd=ChangeMe \
  -var k8s_version=stable-1.9 \
  -var docker_version=17.03.0~ce-0~ubuntu-xenial
