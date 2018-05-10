@@ -44,5 +44,5 @@ variable "ip_admin" {
 variable "private_key" {
   type        = "string"
   default     = "~/.ssh/id_rsa"
-  description = "The path to your private key to "
+  description = "The path to your private key"
 }
