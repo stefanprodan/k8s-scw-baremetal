@@ -18,7 +18,7 @@ resource "scaleway_server" "k8s_node" {
   connection {
     type        = "ssh"
     user        = "root"
-    private_key = "${file("~/.ssh/id_rsa")}"
+    private_key = "${file(var.private_key)}"
   }
   provisioner "file" {
     source      = "scripts/docker-install.sh"
