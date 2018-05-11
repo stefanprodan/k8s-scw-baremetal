@@ -3,7 +3,7 @@ output "k8s_master_public_ip" {
 }
 
 output "kubeadm_join_command" {
-  value = "${data.external.kubeadm_join.result.command}"
+  value = "${data.external.kubeadm_join.result["command"]}"
 }
 
 output "nodes_public_ip" {

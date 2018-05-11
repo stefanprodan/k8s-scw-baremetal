@@ -3,11 +3,12 @@ resource "scaleway_ip" "k8s_node_ip" {
 }
 
 resource "scaleway_server" "k8s_node" {
-  count     = "${var.nodes}"
-  name      = "${terraform.workspace}-node-${count.index + 1}"
-  image     = "${data.scaleway_image.xenial.id}"
-  type      = "${var.server_type_node}"
-  public_ip = "${element(scaleway_ip.k8s_node_ip.*.ip, count.index)}"
+  count          = "${var.nodes}"
+  name           = "${terraform.workspace}-node-${count.index + 1}"
+  image          = "${data.scaleway_image.xenial.id}"
+  type           = "${var.server_type_node}"
+  public_ip      = "${element(scaleway_ip.k8s_node_ip.*.ip, count.index)}"
+  security_group = "${scaleway_security_group.node_security_group.id}"
 
   //  volume {
   //    size_in_gb = 50
@@ -15,8 +16,9 @@ resource "scaleway_server" "k8s_node" {
   //  }
 
   connection {
-    type = "ssh"
-    user = "root"
+    type        = "ssh"
+    user        = "root"
+    private_key = "${file(var.private_key)}"
   }
   provisioner "file" {
     source      = "scripts/docker-install.sh"
