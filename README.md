@@ -139,8 +139,8 @@ Create the podinfo nodeport service:
 
 ```bash
 $ kubectl --kubeconfig ./$(terraform output kubectl_config) \
-  apply -f https://raw.githubusercontent.com/stefanprodan/k8s-podinfo/master/deploy/podinfo-svc-nodeport.yaml
-
+  apply -f https://raw.githubusercontent.com/stefanprodan/k8s-podinfo/7a8506e60fca086572f16de57f87bf5430e2df48/deploy/podinfo-svc-nodeport.yaml
+ 
 service "podinfo-nodeport" created
 ```
 
@@ -148,7 +148,7 @@ Create the podinfo deployment:
 
 ```bash
 $ kubectl --kubeconfig ./$(terraform output kubectl_config) \
-  apply -f https://raw.githubusercontent.com/stefanprodan/k8s-podinfo/master/deploy/podinfo-dep.yaml
+  apply -f https://raw.githubusercontent.com/stefanprodan/k8s-podinfo/7a8506e60fca086572f16de57f87bf5430e2df48/deploy/podinfo-dep.yaml
 
 deployment "podinfo" created
 ```
@@ -294,7 +294,7 @@ Apply the podinfo HPA:
 
 ```bash
 $ kubectl --kubeconfig ./$(terraform output kubectl_config) \
-  apply -f https://raw.githubusercontent.com/stefanprodan/k8s-podinfo/master/deploy/podinfo-hpa.yaml
+  apply -f https://raw.githubusercontent.com/stefanprodan/k8s-podinfo/7a8506e60fca086572f16de57f87bf5430e2df48/deploy/podinfo-hpa.yaml
 
 horizontalpodautoscaler "podinfo" created
 ```
