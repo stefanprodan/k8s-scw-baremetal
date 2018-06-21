@@ -322,7 +322,7 @@ hey -n 10000 -q 10 -c 5 http://$(terraform output k8s_master_public_ip):31190
 You can monitor the autoscaler events with:
 
 ```bash
-$ kubectl --kubeconfig ./$(terraform output kubectl_config) describe hpa
+$ watch -n 5 kubectl --kubeconfig ./$(terraform output kubectl_config) describe hpa
 
 Events:
   Type    Reason             Age   From                       Message
