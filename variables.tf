@@ -1,10 +1,10 @@
 variable "docker_version" {
   default     = "17.03.0~ce-0~ubuntu-xenial"
-  description = "Use 17.12.0~ce-0~ubuntu for arm64"
+  description = "Use 17.12.0~ce-0~ubuntu for x86_64 and 17.03.0~ce-0~ubuntu-xenial for arm"
 }
 
 variable "k8s_version" {
-  default = "stable-1.9"
+  default = "stable-1.11"
 }
 
 variable "weave_passwd" {

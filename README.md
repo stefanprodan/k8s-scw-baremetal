@@ -38,7 +38,7 @@ $ terraform apply \
  -var nodes=2 \
  -var server_type_node=C1 \
  -var weave_passwd=ChangeMe \
- -var k8s_version=stable-1.9 \
+ -var k8s_version=stable-1.11 \
  -var docker_version=17.03.0~ce-0~ubuntu-xenial
 ```
 
@@ -80,8 +80,8 @@ $ terraform apply \
  -var nodes=1 \
  -var server_type_node=C2S \
  -var weave_passwd=ChangeMe \
- -var k8s_version=stable-1.9 \
- -var docker_version=17.03.0~ce-0~ubuntu-xenial
+ -var k8s_version=stable-1.11 \
+ -var docker_version=17.12.0~ce-0~ubuntu
 ```
 
 ### Remote control
