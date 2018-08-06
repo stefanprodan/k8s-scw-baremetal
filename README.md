@@ -26,27 +26,26 @@ To configure your cluster, you'll need to have `jq` installed on your computer.
 
 ### Usage
 
-Create an ARMv7 bare-metal Kubernetes cluster with one master and two nodes:
+Create an AMD64 bare-metal Kubernetes cluster with one master and a node:
 
 ```bash
-$ terraform workspace new arm
+$ terraform workspace new amd64
 
 $ terraform apply \
  -var region=par1 \
- -var arch=arm \
- -var server_type=C1 \
- -var nodes=2 \
- -var server_type_node=C1 \
+ -var arch=x86_64 \
+ -var server_type=C2S \
+ -var nodes=1 \
+ -var server_type_node=C2S \
  -var weave_passwd=ChangeMe \
- -var k8s_version=stable-1.11 \
- -var docker_version=17.03.0~ce-0~ubuntu-xenial
+ -var docker_version=17.12.0~ce-0~ubuntu
 ```
 
 This will do the following:
 
 * reserves public IPs for each server
 * provisions three bare-metal servers with Ubuntu 16.04.1 LTS (the size of the `master` and the `node` may be different but must remain in the same type of architecture)
-* connects to the master server via SSH and installs Docker CE and kubeadm armhf apt packages
+* connects to the master server via SSH and installs Docker CE and kubeadm apt packages
 * runs kubeadm init on the master server and configures kubectl
 * downloads the kubectl admin config file on your local machine and replaces the private IP with the public one
 * creates a Kubernetes secret with the Weave Net password
@@ -68,20 +67,19 @@ Tear down the whole infrastructure with:
 terraform destroy -force
 ```
 
-Create an AMD64 bare-metal Kubernetes cluster with one master and a node:
+Create an ARMv7 bare-metal Kubernetes cluster with one master and two nodes:
 
 ```bash
-$ terraform workspace new amd64
+$ terraform workspace new arm
 
 $ terraform apply \
  -var region=par1 \
- -var arch=x86_64 \
- -var server_type=C2M \
+ -var arch=arm \
+ -var server_type=C1 \
  -var nodes=1 \
- -var server_type_node=C2S \
+ -var server_type_node=C1 \
  -var weave_passwd=ChangeMe \
- -var k8s_version=stable-1.11 \
- -var docker_version=17.12.0~ce-0~ubuntu
+ -var docker_version=17.03.0~ce-0~ubuntu-xenial
 ```
 
 ### Remote control
@@ -105,20 +103,11 @@ arm-node-2     101m         2%        584Mi           30%
 
 The `kubectl` config file format is `<WORKSPACE>.conf` as in `arm.conf` or `amd64.conf`.
 
-In order to access the dashboard you'll need to find its cluster IP:
+In order to access the dashboard you can use port forward:
 
 ```bash
 $ kubectl --kubeconfig ./$(terraform output kubectl_config) \
-  -n kube-system get svc --selector=k8s-app=kubernetes-dashboard
-
-NAME                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
-kubernetes-dashboard   ClusterIP   10.107.37.220   <none>        80/TCP    6m
-```
-
-Open a SSH tunnel:
-
-```bash
-ssh -L 8888:<CLUSTER_IP>:80 root@<MASTER_PUBLIC_IP>
+  -n kube-system port-forward deployment/kubernetes-dashboard 8888:9090
 ```
 
 Now you can access the dashboard on your computer at `http://localhost:8888`.
