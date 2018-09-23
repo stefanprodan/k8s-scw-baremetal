@@ -32,7 +32,7 @@ resource "scaleway_server" "k8s_master" {
     inline = [
       "set -e",
       "chmod +x /tmp/docker-install.sh && /tmp/docker-install.sh ${var.docker_version}",
-      "chmod +x /tmp/kubeadm-install.sh && /tmp/kubeadm-install.sh",
+      "chmod +x /tmp/kubeadm-install.sh && /tmp/kubeadm-install.sh ${var.k8s_version}",
       "kubeadm init --apiserver-advertise-address=${self.private_ip} --apiserver-cert-extra-sans=${self.public_ip} --kubernetes-version=${var.k8s_version} --ignore-preflight-errors=KubeletVersion",
       "mkdir -p $HOME/.kube && cp -i /etc/kubernetes/admin.conf $HOME/.kube/config",
       "kubectl create secret -n kube-system generic weave-passwd --from-literal=weave-passwd=${var.weave_passwd}",
