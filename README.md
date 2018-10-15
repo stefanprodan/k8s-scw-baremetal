@@ -14,11 +14,23 @@ $ terraform init
 
 Note that you'll need Terraform v0.10 or newer to run this project.
 
-Before running the project you'll have to create an access token for Terraform to connect to the Scaleway API.
-Using the token and your access key, create two environment variables:
+Before running the project you'll have to create an access token for Terraform to connect to the Scaleway API
+
+Now retrieve the `<ORGANIZATION_ID>` using your `<ACCESS-TOKEN>` from `/organizations` API endpoint:
 
 ```bash
-$ export SCALEWAY_ORGANIZATION="<ACCESS-KEY>"
+$ curl https://account.scaleway.com/organizations -H "X-Auth-Token: <ACCESS-TOKEN>"
+```
+
+Sample output (excerpt with organization ID):
+```bash
+"organizations": [{"id": "xxxxxxxxxxxxx", "name": "Organization Name"}],
+```
+
+Using the token and your organization ID, create two environment variables:
+
+```bash
+$ export SCALEWAY_ORGANIZATION="<ORGANIZATION_ID>"
 $ export SCALEWAY_TOKEN="<ACCESS-TOKEN>"
 ```
 
