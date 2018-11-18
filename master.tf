@@ -41,7 +41,7 @@ resource "scaleway_server" "k8s_master" {
     ]
   }
   provisioner "local-exec" {
-    command    = "./scripts/kubectl-conf.sh ${terraform.workspace} ${self.public_ip} ${self.private_ip}"
+    command    = "./scripts/kubectl-conf.sh ${terraform.workspace} ${self.public_ip} ${self.private_ip} ${var.private_key}"
     on_failure = "continue"
   }
 }
@@ -51,6 +51,7 @@ data "external" "kubeadm_join" {
 
   query = {
     host = "${scaleway_ip.k8s_master_ip.0.ip}"
+    key = "${var.private_key}"
   }
 
   depends_on = ["scaleway_server.k8s_master"]
