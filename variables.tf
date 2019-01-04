@@ -4,7 +4,7 @@ variable "docker_version" {
 }
 
 variable "k8s_version" {
-  default = "stable-1.11"
+  default = "stable-1.13"
 }
 
 variable "weave_passwd" {

@@ -1,0 +1,42 @@
+---
+apiVersion: kubeadm.k8s.io/v1alpha3
+kind: InitConfiguration
+apiEndpoint:
+  advertiseAddress: KUBEADM_CLUSTER_PUBLIC_IP
+nodeRegistration:
+  kubeletExtraArgs:
+    "feature-gates": "BlockVolume=true,CRIContainerLogRotation=true"
+
+
+---
+apiVersion: kubeadm.k8s.io/v1alpha3
+kind: ClusterConfiguration
+kubernetesVersion: KUBEADM_KUBERNETES_VERSION
+apiServerCertSANs:
+  - KUBEADM_CLUSTER_PUBLIC_IP
+apiServerExtraArgs:
+  authorization-mode: Node,RBAC
+certificatesDir: /etc/kubernetes/pki
+clusterName: kubernetes
+imageRepository: k8s.gcr.io
+
+
+---
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+containerLogMaxFiles: 1
+containerLogMaxSize: 10Mi
+maxPods: 110
+featureGates:
+  BlockVolume: true
+  CRIContainerLogRotation: true
+
+---
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+
+
+# ---
+# apiVersion: kubeadm.k8s.io/v1alpha3
+# kind: JoinConfiguration
+
