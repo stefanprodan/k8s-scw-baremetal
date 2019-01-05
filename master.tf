@@ -29,22 +29,47 @@ resource "scaleway_server" "k8s_master" {
     destination = "/tmp"
   }
   provisioner "file" {
-    source      = "kubeadm-config.yaml"
-    destination = "/tmp/kubeadm-config.yaml"
+    source      = "kubeadm"
+    destination = "/tmp/"
   }
   provisioner "remote-exec" {
+
     inline = [
-      "set -e",
-      "chmod +x /tmp/docker-install.sh && /tmp/docker-install.sh ${var.docker_version}" && chmod g+w /tmp/kubeadm-config.yaml,
-      "chmod +x /tmp/kubeadm-install.sh && /tmp/kubeadm-install.sh ${var.k8s_version}",
-      "sed 's/KUBEADM_CLUSTER_PUBLIC_IP/${self.public_ip}/g' /tmp/kubeadm-config.yaml",
-      "export KUBEADM_K8S_VERSION=$(apt-cache madison kubeadm | grep 1.13  | head -1 | awk '{print $3}' | rev | cut -c4-| rev)"
-      "sed \"s/KUBEADM_KUBERNETES_VERSION/$${KUBEADM_K8S_VERSION}/g\" /tmp/kubeadm-config.yaml",
-      "kubeadm init --ignore-preflight-errors=KubeletVersion --config=/tmp/kubeadm-config.yaml",
-      "mkdir -p $HOME/.kube && cp -i /etc/kubernetes/admin.conf $HOME/.kube/config",
-      "kubectl create secret -n kube-system generic weave-passwd --from-literal=weave-passwd=${var.weave_passwd}",
-      "kubectl apply -f \"https://cloud.weave.works/k8s/net?password-secret=weave-passwd&k8s-version=$(kubectl version | base64 | tr -d '\n')\"",
-      "chmod +x /tmp/monitoring-install.sh && /tmp/monitoring-install.sh ${var.arch}",
+      <<EOT
+#!/bin/bash
+set -e
+chmod +x /tmp/docker-install.sh
+chmod +x /tmp/kubeadm-install.sh
+chmod g+w -R /tmp/kubeadm/
+
+/tmp/docker-install.sh ${var.docker_version} && \
+/tmp/kubeadm-install.sh ${var.k8s_version} && \
+
+export KUBEADM_VERSION=$(apt-cache madison kubeadm | grep $(echo ${var.k8s_version} | cut -c8-) | \
+  head -1 | awk '{print $3}' | rev | cut -c4- | rev)
+dpkg --compare-versions "$${KUBEADM_VERSION}" lt 1.13 && \
+  export KUBEADM_CONFIG_FILE=/tmp/kubeadm/v1alpha3-config.yaml || \
+  export KUBEADM_CONFIG_FILE=/tmp/kubeadm/v1beta1-config.yaml
+dpkg --compare-versions "$${KUBEADM_VERSION}" lt 1.12 && \
+  export KUBEADM_CONFIG_FILE=""
+if [[ -z "$${KUBEADM_CONFIG_FILE}" ]]; then
+  kubeadm init \
+    --apiserver-advertise-address=${self.private_ip} \
+    --apiserver-cert-extra-sans=${self.public_ip} \
+    --kubernetes-version=${var.k8s_version} \
+    --ignore-preflight-errors=KubeletVersion
+else
+  sed -i 's/CONFIG_CLUSTER_PUBLIC_IP/${self.public_ip}/g' $${KUBEADM_CONFIG_FILE} && \
+  sed -i 's/CONFIG_CLUSTER_PRIVATE_IP/${self.private_ip}/g' $${KUBEADM_CONFIG_FILE} && \
+  sed -i "s/CONFIG_KUBERNETES_VERSION/v$${KUBEADM_VERSION}/g" $${KUBEADM_CONFIG_FILE} && \
+  kubeadm init --ignore-preflight-errors=KubeletVersion --config=/$${KUBEADM_CONFIG_FILE}
+fi && \
+
+mkdir -p $HOME/.kube && cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && \
+kubectl create secret -n kube-system generic weave-passwd --from-literal=weave-passwd=${var.weave_passwd} && \
+kubectl apply -f "https://cloud.weave.works/k8s/net?password-secret=weave-passwd&k8s-version=$(kubectl version | base64 | tr -d '\n')" && \
+chmod +x /tmp/monitoring-install.sh && /tmp/monitoring-install.sh ${var.arch}
+EOT
     ]
   }
   provisioner "local-exec" {
