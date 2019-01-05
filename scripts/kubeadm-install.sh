@@ -11,7 +11,7 @@ apt-get update -qq
 declare -a deps
 export deps=(kubeadm kubelet kubectl cri-tools)
 
-for dep in "${deps[@]}"""; do
+for dep in "${deps[@]}"; do
 
   dep_version=$(echo "${dep}_version" | tr - _)
   if [[ -z "$(apt-cache madison ${dep} | grep ${K8_VERSION#"stable-"})" ]]; then
