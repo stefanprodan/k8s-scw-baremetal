@@ -46,3 +46,9 @@ variable "private_key" {
   default     = "~/.ssh/id_rsa"
   description = "The path to your private key"
 }
+
+variable "container_log_max_size" {
+  type        = "string"
+  default     = "100Mi"
+  description = "The maximum file size for container logs"
+}

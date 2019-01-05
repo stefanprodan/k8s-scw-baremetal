@@ -62,6 +62,7 @@ else
   sed -i 's/CONFIG_CLUSTER_PUBLIC_IP/${self.public_ip}/g' $${KUBEADM_CONFIG_FILE} && \
   sed -i 's/CONFIG_CLUSTER_PRIVATE_IP/${self.private_ip}/g' $${KUBEADM_CONFIG_FILE} && \
   sed -i "s/CONFIG_KUBERNETES_VERSION/v$${KUBEADM_VERSION}/g" $${KUBEADM_CONFIG_FILE} && \
+  sed -i "s/CONTAINER_LOG_MAX_SIZE/${var.container_log_max_size}/" $${KUBEADM_CONFIG_FILE} && \
   kubeadm init --ignore-preflight-errors=KubeletVersion --config=/$${KUBEADM_CONFIG_FILE}
 fi && \
 

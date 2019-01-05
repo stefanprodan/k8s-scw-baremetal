@@ -26,7 +26,7 @@ imageRepository: k8s.gcr.io
 apiVersion: kubelet.config.k8s.io/v1beta1
 kind: KubeletConfiguration
 containerLogMaxFiles: 1
-containerLogMaxSize: 10Mi
+containerLogMaxSize: CONTAINER_LOG_MAX_SIZE
 maxPods: 110
 featureGates:
   BlockVolume: true
