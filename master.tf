@@ -35,7 +35,6 @@ resource "scaleway_server" "k8s_master" {
 set -e
 chmod +x /tmp/docker-install.sh
 chmod +x /tmp/kubeadm-install.sh
-chmod g+w -R /tmp/kubeadm/
 
 /tmp/docker-install.sh ${var.docker_version} && \
 /tmp/kubeadm-install.sh ${var.k8s_version}
