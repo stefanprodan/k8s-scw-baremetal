@@ -3,20 +3,34 @@ variable "ubuntu_version" {
   description = <<EOT
 
 For arm, choose from:
-  - Ubuntu Xenial
+  - Ubuntu Xenial (recommended)
 
 For x86_64, choose from:
   - Ubuntu Xenial
   - Ubuntu Bionic
 
-Note: kubernetes only has xenial packages
+Notes:
+  - kubernetes only has xenial packages for debian
+  - currently arm is not working with ubuntu bionic (kubeadm init waiting issue)
 
 EOT
 }
 
 variable "docker_version" {
   default     = "17.03.0~ce-0~ubuntu-xenial"
-  description = "Can be simple/non-specific with 5 characters (eg 18.06) or exact (eg 18.06.0~ce~3-0~ubuntu)"
+  description = <<EOT
+
+Specify the docker version either as
+
+  - Simplified 5 characters name such as:
+    - 17.03
+    - 18.06
+
+  - The exact release name such as:
+    - 17.03.0~ce-0~ubuntu-xenial
+    - 18.06.0~ce~3-0~ubuntu
+
+EOT
 }
 
 variable "k8s_version" {
