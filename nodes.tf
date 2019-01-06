@@ -5,7 +5,7 @@ resource "scaleway_ip" "k8s_node_ip" {
 resource "scaleway_server" "k8s_node" {
   count          = "${var.nodes}"
   name           = "${terraform.workspace}-node-${count.index + 1}"
-  image          = "${data.scaleway_image.xenial.id}"
+  image          = "${data.scaleway_image.ubuntu.id}"
   type           = "${var.server_type_node}"
   public_ip      = "${element(scaleway_ip.k8s_node_ip.*.ip, count.index)}"
   security_group = "${scaleway_security_group.node_security_group.id}"
@@ -31,7 +31,8 @@ resource "scaleway_server" "k8s_node" {
   provisioner "remote-exec" {
     inline = [
       "set -e",
-      "chmod +x /tmp/docker-install.sh && /tmp/docker-install.sh ${var.docker_version}",
+      "export ubuntu_version=$(echo -n ${var.ubuntu_version} | cut -d \" \" -f 2 | awk '{print tolower($0)}')",
+      "chmod +x /tmp/docker-install.sh && /tmp/docker-install.sh $${ubuntu_version} ${var.arch} ${var.docker_version}",
       "chmod +x /tmp/kubeadm-install.sh && /tmp/kubeadm-install.sh ${var.k8s_version}",
       "${data.external.kubeadm_join.result.command}",
     ]
