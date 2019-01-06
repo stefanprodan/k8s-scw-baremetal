@@ -43,9 +43,9 @@ modify_kube_apiserver_config(){
   while [[ ! -e /etc/kubernetes/manifests/kube-apiserver.yaml ]]; do
     sleep 0.5s;
   done && \
-  sed -i 's/failureThreshold: [0-9]/failureThreshold: 12/g' /etc/kubernetes/manifests/kube-apiserver.yaml && \
+  sed -i 's/failureThreshold: [0-9]/failureThreshold: 18/g' /etc/kubernetes/manifests/kube-apiserver.yaml && \
   sed -i 's/timeoutSeconds: [0-9][0-9]/timeoutSeconds: 20/g' /etc/kubernetes/manifests/kube-apiserver.yaml && \
-  sed -i 's/initialDelaySeconds: [0-9][0-9]/initialDelaySeconds: 120/g' /etc/kubernetes/manifests/kube-apiserver.yaml
+  sed -i 's/initialDelaySeconds: [0-9][0-9]/initialDelaySeconds: 240/g' /etc/kubernetes/manifests/kube-apiserver.yaml
 }
 
 # ref https://github.com/kubernetes/kubeadm/issues/413 (initialDelaySeconds is too eager)
