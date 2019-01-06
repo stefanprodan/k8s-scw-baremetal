@@ -4,7 +4,7 @@ variable "docker_version" {
 }
 
 variable "k8s_version" {
-  default = "stable-1.11"
+  default = "stable-1.12"
 }
 
 variable "weave_passwd" {
@@ -46,3 +46,9 @@ variable "private_key" {
   default     = "~/.ssh/id_rsa"
   description = "The path to your private key"
 }
+
+variable "kubeadm_verbosity" {
+  default     = "0"
+  description = "The verbosity level of the kubeadm init logs"
+}
+

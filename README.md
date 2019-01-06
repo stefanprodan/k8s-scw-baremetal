@@ -88,7 +88,7 @@ $ terraform apply \
  -var region=par1 \
  -var arch=arm \
  -var server_type=C1 \
- -var nodes=1 \
+ -var nodes=2 \
  -var server_type_node=C1 \
  -var weave_passwd=ChangeMe \
  -var docker_version=17.03.0~ce-0~ubuntu-xenial
