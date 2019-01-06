@@ -51,11 +51,19 @@ modify_kube_apiserver_config(){
 # ref https://github.com/kubernetes/kubeadm/issues/413 (initialDelaySeconds is too eager)
 if [[ ${var.arch} == "arm" ]]; then modify_kube_apiserver_config & fi
 
+export KUBEADM_VERSION=$(apt-cache madison kubeadm | grep $(echo ${var.k8s_version} | cut -c8-) | \
+  head -1 | awk '{print $3}' | rev | cut -c4- | rev)
+
+dpkg --compare-versions "$${KUBEADM_VERSION}" lt 1.11 && \
+  export VERBOSITY_EXTRA_ARGS='' || \
+  export VERBOSITY_EXTRA_ARGS='--v ${var.kubeadm_verbosity}'
+
 kubeadm init \
   --apiserver-advertise-address=${self.private_ip} \
   --apiserver-cert-extra-sans=${self.public_ip} \
   --kubernetes-version=${var.k8s_version} \
-  --ignore-preflight-errors=KubeletVersion
+  --ignore-preflight-errors=KubeletVersion \
+  $${VERBOSITY_EXTRA_ARGS};
 
 mkdir -p $HOME/.kube && cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && \
 kubectl create secret -n kube-system generic weave-passwd --from-literal=weave-passwd=${var.weave_passwd} && \
