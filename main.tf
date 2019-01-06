@@ -11,3 +11,8 @@ data "scaleway_image" "ubuntu" {
   architecture = "${var.arch}"
   name         = "${var.ubuntu_version}"
 }
+
+data "scaleway_bootscript" "architecture" {
+  architecture = "${var.arch}"
+  name_filter  = "${var.arch_bootscript}"
+}
