@@ -1,3 +1,3 @@
 terraform {
-  required_version = "<= 0.11.9"
+  required_version = "<= 0.11.11"
 }
