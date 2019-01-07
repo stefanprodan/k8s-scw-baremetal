@@ -46,6 +46,18 @@ variable "arch" {
   description = "Values: arm arm64 x86_64"
 }
 
+variable "arch_bootscript" {
+  default     = "4.4.127"
+  description = <<EOT
+Use 4.4.127 for arm and use 4.9.93 for x86_64
+
+To view possible kernels, modify the following command as needed:
+
+curl -sH "X-Auth-Token: <SCALEWAY_TOKEN>" -H "Content-Type: application/json" https://cp-par1.scaleway.com/images/ | \
+jq '.[][] | select ( .arch == "arm" ) | select ( .name == "Ubuntu Bionic Beaver" )' | jq .default_bootscript.title
+EOT
+}
+
 variable "region" {
   default     = "par1"
   description = "Values: par1 ams1"
