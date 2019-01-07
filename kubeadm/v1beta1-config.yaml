@@ -1,0 +1,52 @@
+---
+apiVersion: kubeadm.k8s.io/v1beta1
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: CONFIG_CLUSTER_PRIVATE_IP
+  bindPort: 6443
+nodeRegistration:
+  kubeletExtraArgs:
+    "feature-gates": "BlockVolume=true,CRIContainerLogRotation=true"
+
+
+---
+apiVersion: kubeadm.k8s.io/v1beta1
+kind: ClusterConfiguration
+kubernetesVersion: CONFIG_KUBERNETES_VERSION
+apiServer:
+  extraArgs:
+    authorization-mode: Node,RBAC
+  certSANs:
+    - CONFIG_CLUSTER_PUBLIC_IP
+  timeoutForControlPlane: 4m0s
+controlPlaneEndpoint: CONFIG_CLUSTER_PRIVATE_IP:6443
+controllerManager:
+  extraArgs:
+    "node-cidr-mask-size": "20"
+scheduler:
+  extraArgs:
+    address: CONFIG_CLUSTER_PRIVATE_IP
+certificatesDir: /etc/kubernetes/pki
+imageRepository: k8s.gcr.io
+useHyperKubeImage: false
+
+
+---
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+containerLogMaxFiles: 1
+containerLogMaxSize: CONFIG_CONTAINER_LOG_MAX_SIZE
+maxPods: 110
+featureGates:
+  BlockVolume: true
+  CRIContainerLogRotation: true
+
+
+---
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+
+
+# ---
+# apiVersion: kubeadm.k8s.io/v1beta1
+# kind: JoinConfiguration

@@ -10,11 +10,6 @@ resource "scaleway_server" "k8s_master" {
   public_ip      = "${element(scaleway_ip.k8s_master_ip.*.ip, count.index)}"
   security_group = "${scaleway_security_group.master_security_group.id}"
 
-  //  volume {
-  //    size_in_gb = 50
-  //    type       = "l_ssd"
-  //  }
-
   connection {
     type        = "ssh"
     user        = "root"
@@ -28,6 +23,10 @@ resource "scaleway_server" "k8s_master" {
     source      = "addons/"
     destination = "/tmp"
   }
+  provisioner "file" {
+    source      = "kubeadm"
+    destination = "/tmp/"
+  }
   provisioner "remote-exec" {
     inline = [
       <<EOT
@@ -35,6 +34,7 @@ resource "scaleway_server" "k8s_master" {
 set -e
 chmod +x /tmp/docker-install.sh
 chmod +x /tmp/kubeadm-install.sh
+chmod g+w -R /tmp/kubeadm/
 
 export ubuntu_version=$(echo -n ${var.ubuntu_version} | cut -d " " -f 2 | awk '{print tolower($0)}')
 /tmp/docker-install.sh $${ubuntu_version} ${var.arch} ${var.docker_version} && \
@@ -53,18 +53,37 @@ modify_kube_apiserver_config(){
 if [[ ${var.arch} == "arm" ]]; then modify_kube_apiserver_config & fi
 
 export KUBEADM_VERSION=$(apt-cache madison kubeadm | grep $(echo ${var.k8s_version} | cut -c8-) | \
-  head -1 | awk '{print $3}' | rev | cut -c4- | rev)
+  awk 'NR==1 {print $3}' | rev | cut -c4- | rev)
+
+dpkg --compare-versions "$${KUBEADM_VERSION}" lt 1.13 && \
+  export KUBEADM_CONFIG_FILE=/tmp/kubeadm/v1alpha3-config.yaml || \
+  export KUBEADM_CONFIG_FILE=/tmp/kubeadm/v1beta1-config.yaml
+
+dpkg --compare-versions "$${KUBEADM_VERSION}" lt 1.12 && \
+  export KUBEADM_CONFIG_FILE=""
 
 dpkg --compare-versions "$${KUBEADM_VERSION}" lt 1.11 && \
   export VERBOSITY_EXTRA_ARGS='' || \
   export VERBOSITY_EXTRA_ARGS='--v ${var.kubeadm_verbosity}'
 
-kubeadm init \
-  --apiserver-advertise-address=${self.private_ip} \
-  --apiserver-cert-extra-sans=${self.public_ip} \
-  --kubernetes-version=${var.k8s_version} \
-  --ignore-preflight-errors=KubeletVersion \
-  $${VERBOSITY_EXTRA_ARGS};
+if [[ -z "$${KUBEADM_CONFIG_FILE}" ]]; then
+  kubeadm init \
+    --apiserver-advertise-address=${self.private_ip} \
+    --apiserver-cert-extra-sans=${self.public_ip} \
+    --kubernetes-version=${var.k8s_version} \
+    --ignore-preflight-errors=KubeletVersion \
+     $${VERBOSITY_EXTRA_ARGS};
+else
+  sed -i 's/CONFIG_CLUSTER_PUBLIC_IP/${self.public_ip}/g' $${KUBEADM_CONFIG_FILE} && \
+  sed -i 's/CONFIG_CLUSTER_PRIVATE_IP/${self.private_ip}/g' $${KUBEADM_CONFIG_FILE} && \
+  sed -i "s/CONFIG_KUBERNETES_VERSION/v$${KUBEADM_VERSION}/g" $${KUBEADM_CONFIG_FILE} && \
+  sed -i "s/CONFIG_CONTAINER_LOG_MAX_SIZE/${var.container_log_max_size}/" $${KUBEADM_CONFIG_FILE}
+
+  kubeadm init \
+    --ignore-preflight-errors=KubeletVersion \
+    --config=$${KUBEADM_CONFIG_FILE} \
+     $${VERBOSITY_EXTRA_ARGS};
+fi && \
 
 mkdir -p $HOME/.kube && cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && \
 kubectl create secret -n kube-system generic weave-passwd --from-literal=weave-passwd=${var.weave_passwd} && \

@@ -77,6 +77,11 @@ variable "private_key" {
   description = "The path to your private key"
 }
 
+variable "container_log_max_size" {
+  default     = "100Mi"
+  description = "The maximum file size for container logs"
+}
+
 variable "kubeadm_verbosity" {
   default     = "0"
   description = "The verbosity level of the kubeadm init logs"
