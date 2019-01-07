@@ -7,7 +7,7 @@ provider "external" {
   version = "1.0.0"
 }
 
-data "scaleway_image" "xenial" {
+data "scaleway_image" "ubuntu" {
   architecture = "${var.arch}"
-  name         = "Ubuntu Xenial"
+  name         = "${var.ubuntu_version}"
 }
