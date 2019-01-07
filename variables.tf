@@ -34,7 +34,7 @@ EOT
 }
 
 variable "k8s_version" {
-  default = "stable-1.12"
+  default = "stable-1.13"
 }
 
 variable "weave_passwd" {
@@ -75,6 +75,11 @@ variable "private_key" {
   type        = "string"
   default     = "~/.ssh/id_rsa"
   description = "The path to your private key"
+}
+
+variable "container_log_max_size" {
+  default     = "100Mi"
+  description = "The maximum file size for container logs, k8s 1.12+ only"
 }
 
 variable "kubeadm_verbosity" {
