@@ -16,7 +16,7 @@ kubernetesVersion: CONFIG_KUBERNETES_VERSION
 apiServerCertSANs:
   - CONFIG_CLUSTER_PUBLIC_IP
 apiServerExtraArgs:
-  authorization-mode: Node,RBAC
+  authorization-mode: "Node,RBAC"
 certificatesDir: /etc/kubernetes/pki
 clusterName: kubernetes
 imageRepository: k8s.gcr.io

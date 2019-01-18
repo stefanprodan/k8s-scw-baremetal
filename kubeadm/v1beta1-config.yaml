@@ -15,7 +15,7 @@ kind: ClusterConfiguration
 kubernetesVersion: CONFIG_KUBERNETES_VERSION
 apiServer:
   extraArgs:
-    authorization-mode: Node,RBAC
+    authorization-mode: "Node,RBAC"
   certSANs:
     - CONFIG_CLUSTER_PUBLIC_IP
   timeoutForControlPlane: 4m0s
