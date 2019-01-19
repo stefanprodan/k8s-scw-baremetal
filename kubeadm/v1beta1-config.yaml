@@ -40,6 +40,13 @@ maxPods: 110
 featureGates:
   BlockVolume: true
   CRIContainerLogRotation: true
+authentication:
+  anonymous:
+    enabled: false
+  webhook:
+    enabled: true
+authorization:
+  mode: Webhook
 
 
 ---
