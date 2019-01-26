@@ -29,6 +29,7 @@ resource "scaleway_server" "k8s_node" {
       "export ubuntu_version=$(echo -n ${var.ubuntu_version} | cut -d \" \" -f 2 | awk '{print tolower($0)}')",
       "chmod +x /tmp/docker-install.sh && /tmp/docker-install.sh $${ubuntu_version} ${var.arch} ${var.docker_version}",
       "chmod +x /tmp/kubeadm-install.sh && /tmp/kubeadm-install.sh ${var.k8s_version}",
+      "echo 'KUBELET_EXTRA_ARGS=${var.kubelet_extra_args}' > /etc/default/kubelet",
       "${data.external.kubeadm_join.result.command}",
     ]
   }

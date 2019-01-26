@@ -87,3 +87,7 @@ variable "kubeadm_verbosity" {
   description = "The verbosity level of the kubeadm init logs"
 }
 
+variable "kubelet_extra_args" {
+  default = ""
+  description = "Extra arguments used by kubelet systemd"
+}
