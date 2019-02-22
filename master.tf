@@ -13,7 +13,7 @@ resource "scaleway_server" "k8s_master" {
   connection {
     type        = "ssh"
     user        = "root"
-    private_key = "${file(var.private_key)}"
+    agent       = true
   }
   provisioner "file" {
     source      = "scripts/"
